@@ -1,6 +1,10 @@
 const express = require("express");
 
+const expenseRouter = require("./routes/expense-router");
+
 const app = express();
+
+app.use("/api/v1/expenses", expenseRouter)
 
 app.get("/check", (req, res, next) => {
   console.log("Request received");
