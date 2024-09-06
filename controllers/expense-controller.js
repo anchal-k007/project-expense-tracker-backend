@@ -71,6 +71,10 @@ exports.postAddNewExpense = (req, res, next) => {
     });
 };
 
+/**
+ * 
+ * @returns {Promise<Array>}
+ */
 const readDataFile = async () => {
   const filePath = path.join(__dirname, "..", "utils", "data.json");
   return fs
@@ -100,6 +104,50 @@ exports.deleteRemoveExpense = async (req, res, next) => {
       res.status(204).json({
         status: "success",
         message: "done",
+      });
+    })
+    .catch((err) => {
+      console.log("error occured while writing");
+      console.log(err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal server error",
+      });
+    });
+};
+
+exports.putUpdateExpense = async (req, res, next) => {
+  const validProperties = ["paymentMode", "amount", "date", "reason"];
+  const paymentId = req.params.paymentId;
+  const dataToUpdate = req.body;
+  // filter unnecessary fields
+  Object.keys(dataToUpdate).forEach(
+    (key) => !validProperties.includes(key) && delete dataToUpdate[key]
+  );
+
+  const fileData = await readDataFile();
+  const index = fileData.findIndex(expense => expense.paymentId === paymentId);
+  if(index === -1) {
+    console.log("Could not find the expense with the paymentId=" + paymentId);
+    res.status(404).json({
+      "status": "fail",
+      message: "Could not find the expense with the paymentId=" + paymentId
+    });
+  }
+
+  fileData[index] = {
+    ...fileData[index],
+    ...dataToUpdate,
+  }
+
+  
+  const filePath = path.join(__dirname, "..", "utils", "data.json");
+  fs.writeFile(filePath, JSON.stringify(fileData))
+    .then(() => {
+      console.log("Updated expense with paymentId=" + paymentId);
+      res.status(200).json({
+        status: "success",
+        data: fileData[index]
       });
     })
     .catch((err) => {
