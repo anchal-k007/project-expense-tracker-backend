@@ -42,9 +42,6 @@ exports.getAllExpenses = (req, res, next) => {
   }
 
   res.status(200).json({
-    statusCode: 200,
-    data: {
-      expenses: filteredExpenses,
-    },
+    expenses: filteredExpenses,
   });
 };

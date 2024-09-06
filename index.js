@@ -22,8 +22,7 @@ app.use("/api/v1/expenses", expenseRouter);
 app.get("/check", (req, res, next) => {
   console.log("Request received");
   res.status(200).json({
-    statusCode: 200,
-    data: "Check complete",
+    message: "success",
   });
 });
 
