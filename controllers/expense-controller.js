@@ -52,23 +52,62 @@ exports.postAddNewExpense = (req, res, next) => {
     })
     .then((loadedExpenses) => {
       loadedExpenses.push(newExpense);
-      fs.writeFile(
-        filePath,
-        JSON.stringify(loadedExpenses)
-      ).then(() => {
-        console.log("Data written to file successfully");
-        res.status(201).json({
-          status: "success",
-          expense: newExpense,
+      fs.writeFile(filePath, JSON.stringify(loadedExpenses))
+        .then(() => {
+          console.log("Data written to file successfully");
+          res.status(201).json({
+            status: "success",
+            expense: newExpense,
+          });
+        })
+        .catch((err) => {
+          console.log("Error in writing data");
+          console.log(err);
+          res.status(500).json({
+            status: "error",
+            message: "internal server error",
+          });
         });
-      })
-      .catch(err => {
-        console.log("Error in writing data");
-        console.log(err);
-        res.status(500).json({
-          status: "error",
-          message: "internal server error"
-        });
-      })
+    });
+};
+
+const readDataFile = async () => {
+  const filePath = path.join(__dirname, "..", "utils", "data.json");
+  return fs
+    .readFile(filePath)
+    .then((data) => {
+      console.log("Data loaded successfully");
+      return JSON.parse(data);
+    })
+    .catch((err) => {
+      console.log("Eror in loading file");
+      console.log(err);
+    });
+};
+
+exports.deleteRemoveExpense = async (req, res, next) => {
+  const paymentId = req.params.paymentId;
+  const fileData = await readDataFile();
+
+  const updatedData = fileData.filter(
+    (expense) => expense.paymentId !== paymentId
+  );
+
+  const filePath = path.join(__dirname, "..", "utils", "data.json");
+  fs.writeFile(filePath, JSON.stringify(updatedData))
+    .then(() => {
+      console.log("Item deleted");
+      res.status(204).json({
+        status: "success",
+        message: "done",
+      });
+    })
+    .catch((err) => {
+      console.log("error occured while writing");
+      console.log(err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal server error",
+      });
     });
 };
