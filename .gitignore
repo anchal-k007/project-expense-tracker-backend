@@ -4,3 +4,5 @@ package-lock.json
 
 /utils/dummyExpenses.js
 /utils/data.json
+
+.env
