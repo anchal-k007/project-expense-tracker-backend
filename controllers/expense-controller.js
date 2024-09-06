@@ -30,11 +30,21 @@ const DUMMY_EXPENSES = [
 ];
 
 exports.getAllExpenses = (req, res, next) => {
-  console.log("Functio getAllExpenses called");
+  const { year, month, date } = req.query;
+  let filteredExpenses;
+  if (!year || !month || !date) {
+    filteredExpenses = DUMMY_EXPENSES;
+  } else {
+    const createdDate = new Date(year, month, date);
+    filteredExpenses = DUMMY_EXPENSES.filter(
+      (expense) => expense.date.getTime() === createdDate.getTime()
+    );
+  }
+
   res.status(200).json({
     statusCode: 200,
     data: {
-      expenses: DUMMY_EXPENSES
-    }
+      expenses: filteredExpenses,
+    },
   });
-}
+};
