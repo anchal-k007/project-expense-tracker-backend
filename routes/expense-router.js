@@ -8,7 +8,7 @@ const {
 
 const router = express.Router();
 
-router.get("/all", getAllExpenses);
+router.get("/get-expenses", getAllExpenses);
 
 router.post("/new", postAddNewExpense);
 
