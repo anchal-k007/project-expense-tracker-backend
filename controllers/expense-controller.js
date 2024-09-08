@@ -1,34 +1,30 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-exports.getAllExpenses = (req, res, next) => {
-  const filePath = path.join(__dirname, "..", "utils", "data.json");
-  fs.readFile(filePath)
-    .then((data) => {
-      console.log("Data loaded successfully");
-      return JSON.parse(data);
-    })
-    .catch((err) => {
-      console.log("Eror in loading file");
-      console.log(err);
-    })
-    .then((DUMMY_EXPENSES) => {
-      const { year, month, date } = req.query;
-      let filteredExpenses;
-      if (!year || !month || !date) {
-        filteredExpenses = DUMMY_EXPENSES;
-      } else {
-        const createdDate = new Date(year, month, date);
-        console.log(createdDate.toISOString());
-        filteredExpenses = DUMMY_EXPENSES.filter(
-          (expense) => expense.date === createdDate.toISOString()
-        );
-      }
+const ExpenseModel = require("./../models/expense-model");
 
-      res.status(200).json({
-        expenses: filteredExpenses,
-      });
+exports.getAllExpenses = async (req, res, next) => {
+  try {
+    const { year, month, date } = req.query;
+    let filteredExpenses;
+    if (!year || !month || !date) {
+      filteredExpenses = await ExpenseModel.find().limit(50);
+    } else {
+      const createdDate = new Date(year, month, date);
+      console.log(createdDate.toISOString());
+      filteredExpenses = await ExpenseModel.find({ date: createdDate.toISOString() });
+    }
+    res.status(200).json({
+      expenses: filteredExpenses,
     });
+  } catch (err) {
+    console.log(`The following error occurred`);
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "internal server error",
+    });
+  }
 };
 
 exports.postAddNewExpense = (req, res, next) => {
