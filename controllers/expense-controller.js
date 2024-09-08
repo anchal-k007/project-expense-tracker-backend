@@ -34,7 +34,7 @@ exports.getAllExpenses = (req, res, next) => {
 exports.postAddNewExpense = (req, res, next) => {
   const { date, amount, paymentMode, reason } = req.body;
   const newExpense = {
-    paymentId: new Date().getTime().toString(),
+    expenseId: new Date().getTime().toString(),
     date: new Date(date),
     amount: +amount,
     paymentMode,
@@ -72,7 +72,7 @@ exports.postAddNewExpense = (req, res, next) => {
 };
 
 /**
- * 
+ *
  * @returns {Promise<Array>}
  */
 const readDataFile = async () => {
@@ -90,11 +90,11 @@ const readDataFile = async () => {
 };
 
 exports.deleteRemoveExpense = async (req, res, next) => {
-  const paymentId = req.params.paymentId;
+  const expenseId = req.params.expenseId;
   const fileData = await readDataFile();
 
   const updatedData = fileData.filter(
-    (expense) => expense.paymentId !== paymentId
+    (expense) => expense.expenseId !== expenseId
   );
 
   const filePath = path.join(__dirname, "..", "utils", "data.json");
@@ -118,7 +118,7 @@ exports.deleteRemoveExpense = async (req, res, next) => {
 
 exports.putUpdateExpense = async (req, res, next) => {
   const validProperties = ["paymentMode", "amount", "date", "reason"];
-  const paymentId = req.params.paymentId;
+  const expenseId = req.params.expenseId;
   const dataToUpdate = req.body;
   // filter unnecessary fields
   Object.keys(dataToUpdate).forEach(
@@ -126,28 +126,29 @@ exports.putUpdateExpense = async (req, res, next) => {
   );
 
   const fileData = await readDataFile();
-  const index = fileData.findIndex(expense => expense.paymentId === paymentId);
-  if(index === -1) {
-    console.log("Could not find the expense with the paymentId=" + paymentId);
+  const index = fileData.findIndex(
+    (expense) => expense.expenseId === expenseId
+  );
+  if (index === -1) {
+    console.log("Could not find the expense with the expenseId=" + expenseId);
     res.status(404).json({
-      "status": "fail",
-      message: "Could not find the expense with the paymentId=" + paymentId
+      status: "fail",
+      message: "Could not find the expense with the expenseId=" + expenseId,
     });
   }
 
   fileData[index] = {
     ...fileData[index],
     ...dataToUpdate,
-  }
+  };
 
-  
   const filePath = path.join(__dirname, "..", "utils", "data.json");
   fs.writeFile(filePath, JSON.stringify(fileData))
     .then(() => {
-      console.log("Updated expense with paymentId=" + paymentId);
+      console.log("Updated expense with expenseId=" + expenseId);
       res.status(200).json({
         status: "success",
-        data: fileData[index]
+        data: fileData[index],
       });
     })
     .catch((err) => {
