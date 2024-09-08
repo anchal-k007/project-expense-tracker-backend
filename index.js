@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const Test = require("./models/test-model");
+const ExpenseModel = require("./models/expense-model");
 const expenseRouter = require("./routes/expense-router");
 
 const app = express();
@@ -20,7 +20,6 @@ const testConnection = async () => {
   )
     .replace("<db_password>", MONGODB_PASSWORD)
     .replace("<db_collection_name>", MONGODB_COLLECTION_NAME);
-  console.log(connectionString);
   mongoose
     .connect(connectionString)
     .then((res) => {
@@ -28,30 +27,13 @@ const testConnection = async () => {
     })
     .catch((err) => {
       console.log("error");
-      console.log(err);
+      throw err;
     });
 };
 
-testConnection()
-  .then(async () => {
-    console.log("trying to insert data");
-    const testData = new Test({
-      name: "Hello",
-      dob: new Date(2024, 8, 6),
-    });
-    try {
-      const res = await testData.save();
-      console.log("data saved successfully");
-      console.log(res);
-    } catch (err) {
-      console.log("an error occurred");
-      console.log(err);
-    }
-  })
-  .catch((err) => console.log(err));
-
 app.use(bodyParser.json()); // accepts application/json data
 
+// Headers are set here to avoid running into CORS error
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -71,6 +53,18 @@ app.get("/check", (req, res, next) => {
   });
 });
 
-app.listen(4000, () => {
-  console.log("Server started on port 4000");
-});
+const run = async () => {
+  try {
+    await testConnection();
+    const PORT = 4000;
+    app.listen(PORT, () => {
+      console.log(`Server started on port ${PORT}`);
+    });
+  } catch (err) {
+    console.log("An error occureed");
+    console.log(err);
+    process.exit(1);
+  }
+};
+
+run();
