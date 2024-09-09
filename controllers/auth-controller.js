@@ -2,7 +2,13 @@ const UserModel = require("../models/user-model");
 const bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res, next) => {
-  const { email , password , name } = req.body;
+  const { email , password , name , confirmPassword } = req.body;
+  if(password !== confirmPassword) {
+    return res.status(400).json({
+      status: "fail",
+      message: "password and confirmPassword do not match"
+    });
+  }
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
