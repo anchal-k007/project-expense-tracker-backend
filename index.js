@@ -2,8 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const ExpenseModel = require("./models/expense-model");
 const expenseRouter = require("./routes/expense-router");
+const authRouter = require("./routes/auth-routes");
 
 const app = express();
 const {
@@ -45,6 +45,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1/expenses", expenseRouter);
+app.use("/api/v1/auth", authRouter);
 
 app.get("/check", (req, res, next) => {
   console.log("Request received");
