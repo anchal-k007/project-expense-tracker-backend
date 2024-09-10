@@ -91,7 +91,7 @@ exports.login = async (req, res, next) => {
       {
         userId: foundUser._id,
       },
-      "this-is-the-secret-key",
+      process.env.JWT_SECRET_STRING_DEV,
       { expiresIn: "1h" }
     );
 
@@ -110,3 +110,44 @@ exports.login = async (req, res, next) => {
     });
   }
 };
+
+exports.isAuth = async (req, res, next) => {
+  const authHeader = req.get("Authorization");
+  if(!authHeader) {
+    console.log("No Authorization header present");
+    return res.status(401).json({
+      status: "fail",
+      message: "Cannot authenticate user"
+    });
+  }
+  const jwtToken = authHeader.split(" ")[1];
+  try {
+    const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET_STRING_DEV);
+    if(!decodedToken) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Invalid jwt token"
+      });
+    }
+    req.userId = decodedToken.userId;
+    next();
+  } catch (err) {
+    if(err instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({
+        status: "fail",
+        message: "jwt token expired"
+      });
+    } else if(err instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        status: "fail",
+        message: "jwt malformed"
+      });
+    }
+    console.log("An error occured while authenticating the user");
+    console.log(err);
+    return res.status(500).json({
+      status: "error",
+      message: "internal server error"
+    });
+  }
+}
