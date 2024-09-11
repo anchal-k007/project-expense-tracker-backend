@@ -1,5 +1,6 @@
 const UserModel = require("../models/user-model");
 const ExpenseModel = require("./../models/expense-model");
+const errorCreator = require("../utils/error-creator");
 
 exports.getAllExpenses = async (req, res, next) => {
   try {
@@ -10,7 +11,6 @@ exports.getAllExpenses = async (req, res, next) => {
       filteredExpenses = await ExpenseModel.find({ user: userId }).limit(50);
     } else {
       const createdDate = new Date(year, month, date);
-      console.log(createdDate.toISOString());
       filteredExpenses = await ExpenseModel.find({
         user: userId,
         date: createdDate.toISOString(),
@@ -20,12 +20,8 @@ exports.getAllExpenses = async (req, res, next) => {
       expenses: filteredExpenses,
     });
   } catch (err) {
-    console.log(`Error in reading expenses data`);
-    console.log(err);
-    res.status(500).json({
-      status: "error",
-      message: "internal server error",
-    });
+    console.log("error in getting expenses");
+    return next(err);
   }
 };
 
@@ -50,11 +46,7 @@ exports.postAddNewExpense = async (req, res, next) => {
     });
   } catch (err) {
     console.log("Error in writing expenses data");
-    console.log(err);
-    res.status(500).json({
-      status: "error",
-      message: "internal server error",
-    });
+    return next(err);
   }
 };
 
@@ -67,10 +59,7 @@ exports.deleteRemoveExpense = async (req, res, next) => {
       user: userId,
     });
     if (!deletedExpense) {
-      return res.status(404).json({
-        status: "fail",
-        message: `Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`,
-      });
+      return next(errorCreator(`Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`, 404));
     }
     const updatedUser = await UserModel.findByIdAndUpdate(userId, {
       $pull: { expenses: deletedExpense._id },
@@ -82,11 +71,7 @@ exports.deleteRemoveExpense = async (req, res, next) => {
     });
   } catch (err) {
     console.log("error occured while deleting");
-    console.log(err);
-    res.status(500).json({
-      status: "error",
-      message: "Internal server error",
-    });
+    return res;
   }
 };
 
@@ -107,10 +92,7 @@ exports.putUpdateExpense = async (req, res, next) => {
       { runValidators: true, returnDocument: "after" }
     );
     if (!updatedExpense) {
-      return res.status(404).json({
-        status: "fail",
-        message: "No expense found with expenseId = " + expenseId,
-      });
+      return next(errorCreator(`No expense found with the expenseId = ${expenseId}`, 404));
     }
     res.status(200).json({
       status: "success",
@@ -118,10 +100,6 @@ exports.putUpdateExpense = async (req, res, next) => {
     });
   } catch (err) {
     console.log("An error occurred while updating");
-    console.log(err);
-    res.status(500).json({
-      status: "error",
-      message: "internal server error",
-    });
+    return next(err);
   }
 };

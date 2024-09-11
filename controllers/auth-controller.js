@@ -1,25 +1,19 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user-model");
+const errorCreator = require("./../utils/error-creator");
 
 exports.signup = async (req, res, next) => {
   const { email, password, name, confirmPassword } = req.body;
   if (password !== confirmPassword) {
-    return res.status(400).json({
-      status: "fail",
-      message: "password and confirmPassword do not match",
-    });
+    return next(errorCreator("password and confirmPassword do not match", 400));
   }
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
   } catch (err) {
     console.log("An error occurred while hashing the password");
-    console.log(err);
-    return res.status(500).json({
-      status: "fail",
-      message: "internal server error",
-    });
+    return next(err);
   }
 
   const newUser = new UserModel({
@@ -31,20 +25,13 @@ exports.signup = async (req, res, next) => {
   try {
     const userFound = await UserModel.findOne({ email: email });
     if (userFound) {
-      return res.status(400).json({
-        status: "fail",
-        message: `User with ${email} already exists`,
-      });
+      return next(errorCreator(`User with email ${email} already exists`, 400));
     }
   } catch (err) {
     console.log(
       "An error occurred while checking if user with the email already exists the password"
     );
-    console.log(err);
-    return res.status(500).json({
-      status: "fail",
-      message: "internal server error",
-    });
+    return next(err);
   }
 
   try {
@@ -60,11 +47,7 @@ exports.signup = async (req, res, next) => {
     });
   } catch (err) {
     console.log("An error occurred while creating the user");
-    console.log(err);
-    return res.status(500).json({
-      status: "error",
-      message: "internal server error",
-    });
+    return next(err);
   }
 };
 
@@ -73,18 +56,14 @@ exports.login = async (req, res, next) => {
   try {
     const foundUser = await UserModel.findOne({ email });
     if (!foundUser) {
-      return res.status(404).json({
-        status: "fail",
-        message: `No user exists with the email = ${email}`,
-      });
+      return next(
+        errorCreator(`No user exists with the email = ${email}`, 404)
+      );
     }
 
     const isPasswordEqual = await bcrypt.compare(password, foundUser.password);
     if (!isPasswordEqual) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Incorrect password entered",
-      });
+      return next(errorCreator("Incorrect password entered", 400));
     }
 
     const token = jwt.sign(
@@ -98,56 +77,41 @@ exports.login = async (req, res, next) => {
     return res.status(200).json({
       status: "success",
       message: "User logged in successfully",
-      token
+      token,
     });
-
   } catch (err) {
     console.log("an error occurred while logging in");
-    console.log(err);
-    return res.status(500).json({
-      status: "error",
-      message: "internal server error"
-    });
+    return next(err);
   }
 };
 
 exports.isAuth = async (req, res, next) => {
   const authHeader = req.get("Authorization");
-  if(!authHeader) {
-    console.log("No Authorization header present");
-    return res.status(401).json({
-      status: "fail",
-      message: "Cannot authenticate user"
-    });
+  if (!authHeader) {
+    return next(
+      errorCreator(
+        "No authorization header present, cannot authenticate user",
+        400
+      )
+    );
   }
   const jwtToken = authHeader.split(" ")[1];
   try {
-    const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET_STRING_DEV);
-    if(!decodedToken) {
-      return res.status(401).json({
-        status: "fail",
-        message: "Invalid jwt token"
-      });
+    const decodedToken = jwt.verify(
+      jwtToken,
+      process.env.JWT_SECRET_STRING_DEV
+    );
+    if (!decodedToken) {
+      return next(errorCreator("Invalid jwt token", 400));
     }
     req.userId = decodedToken.userId;
     next();
   } catch (err) {
-    if(err instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        status: "fail",
-        message: "jwt token expired"
-      });
-    } else if(err instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        status: "fail",
-        message: "jwt malformed"
-      });
+    if (err instanceof jwt.TokenExpiredError) {
+      return next(errorCreator("jwt expired", 400));
+    } else if (err instanceof jwt.JsonWebTokenError) {
+      return next(errorCreator("jwt malformed"), 400);
     }
-    console.log("An error occured while authenticating the user");
-    console.log(err);
-    return res.status(500).json({
-      status: "error",
-      message: "internal server error"
-    });
+    return next(err);
   }
-}
+};

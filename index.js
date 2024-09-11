@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const expenseRouter = require("./routes/expense-router");
 const authRouter = require("./routes/auth-routes");
+const errorController = require("./controllers/error-controller");
+const errorCreator = require("./utils/error-creator");
 
 const app = express();
 const {
@@ -54,6 +56,12 @@ app.get("/check", (req, res, next) => {
   });
 });
 
+app.use("*", (req, res, next) => {
+  return next(errorCreator(`${req.originalUrl} is an invalid route`, 404));
+});
+
+app.use(errorController);
+
 const run = async () => {
   try {
     await testConnection();
@@ -69,3 +77,8 @@ const run = async () => {
 };
 
 run();
+
+// TODO
+// 1. Add validation logic
+// 2. Add error handling -> done
+// 3. Refactoring
