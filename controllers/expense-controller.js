@@ -1,7 +1,6 @@
 const UserModel = require("../models/user-model");
 const ExpenseModel = require("./../models/expense-model");
 const errorCreator = require("../utils/error-creator");
-const { validationResult } = require("express-validator");
 
 exports.getAllExpenses = async (req, res, next) => {
   try {
@@ -27,15 +26,6 @@ exports.getAllExpenses = async (req, res, next) => {
 };
 
 exports.postAddNewExpense = async (req, res, next) => {
-  const validationErrors = validationResult(req);
-  if (!validationErrors.isEmpty()) {
-    const errorObject = validationErrors.array().map((obj) => {
-      return {
-        [obj.path]: obj.msg,
-      };
-    });
-    return next(errorCreator(errorObject, 400));
-  }
   const { date, amount, paymentMode, reason } = req.body;
   const userId = req.userId;
   const newExpense = new ExpenseModel({
@@ -63,15 +53,6 @@ exports.postAddNewExpense = async (req, res, next) => {
 exports.deleteRemoveExpense = async (req, res, next) => {
   const expenseId = req.params.expenseId;
   const userId = req.userId;
-  const validationErrors = validationResult(req);
-  if (!validationErrors.isEmpty()) {
-    const errorObject = validationErrors.array().map((obj) => {
-      return {
-        [obj.path]: obj.msg,
-      };
-    });
-    return next(errorCreator(errorObject, 400));
-  }
   try {
     const deletedExpense = await ExpenseModel.findOneAndDelete({
       _id: expenseId,
@@ -100,15 +81,6 @@ exports.deleteRemoveExpense = async (req, res, next) => {
 };
 
 exports.putUpdateExpense = async (req, res, next) => {
-  const validationErrors = validationResult(req);
-  if (!validationErrors.isEmpty()) {
-    const errorObject = validationErrors.array().map((obj) => {
-      return {
-        [obj.path]: obj.msg,
-      };
-    });
-    return next(errorCreator(errorObject, 400));
-  }
   const userId = req.userId;
   const validProperties = ["paymentMode", "amount", "date", "reason"];
   const expenseId = req.params.expenseId;

@@ -7,6 +7,7 @@ const {
 } = require("../controllers/expense-controller");
 const { isAuth } = require("../controllers/auth-controller");
 const { body, param } = require("express-validator");
+const validationMiddleware = require("../middlewares/catchValidationErrors");
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.post(
       )
         throw new Error("Invalid payment mode");
     }),
+  validationMiddleware,
   postAddNewExpense
 );
 
@@ -45,6 +47,7 @@ router
     param("expenseId")
       .isMongoId()
       .withMessage((value) => `${value} is not a valid expenseId`),
+    validationMiddleware,
     deleteRemoveExpense
   )
   .put(
@@ -76,6 +79,7 @@ router
         )
           throw new Error("Invalid payment mode");
       }),
+    validationMiddleware,
     putUpdateExpense
   );
 
