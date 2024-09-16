@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
         message: obj.msg,
       };
     });
-    return next(errorCreator(errorObject, 403));
+    return next(errorCreator(errorObject, 404));
   }
   // No validation errors present
   next();

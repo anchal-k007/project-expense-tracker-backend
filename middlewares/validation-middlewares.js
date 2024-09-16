@@ -15,10 +15,6 @@ exports.postAddNewExpenseValidator = [
     .trim()
     .custom(async (value) => {
       const validPaymentMode = ["Cash", "Card", "UPI"];
-      console.log("checking");
-      console.log(
-        validPaymentMode.findIndex((paymentMode) => paymentMode === value)
-      );
       if (
         validPaymentMode.findIndex((paymentMode) => paymentMode === value) ===
         -1
@@ -60,4 +56,24 @@ exports.putUpdateExpenseValidator = [
       )
         throw new Error("Invalid payment mode");
     }),
+];
+
+exports.signupValidator = [
+  body("password")
+    .trim()
+    .isLength({ min: 5 })
+    .withMessage("Minimum length of password required = 5"),
+  body("confirmPassword")
+    .trim()
+    .custom(async (value, { req }) => {
+      const password = req.body.password.trim();
+      if (password != value)
+        throw new Error("password and confirmPassword do not match");
+    }),
+  body("email").trim().isEmail().withMessage("Please enter a valid email"),
+];
+
+exports.loginValidator = [
+  body("email", "Please enter a valid email").trim().isEmail().notEmpty(),
+  body("password", "Password cannot be empty").trim().notEmpty(),
 ];

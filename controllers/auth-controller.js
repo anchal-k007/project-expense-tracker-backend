@@ -4,10 +4,8 @@ const UserModel = require("../models/user-model");
 const errorCreator = require("./../utils/error-creator");
 
 exports.signup = async (req, res, next) => {
-  const { email, password, name, confirmPassword } = req.body;
-  if (password !== confirmPassword) {
-    return next(errorCreator("password and confirmPassword do not match", 400));
-  }
+  // password and confirmPassword are matched in the validation middleware
+  const { email, password, name } = req.body;
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 10);
