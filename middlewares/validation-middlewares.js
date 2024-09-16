@@ -10,7 +10,8 @@ exports.postAddNewExpenseValidator = [
   body("reason")
     .trim()
     .isLength({ max: 80 })
-    .withMessage("Maximum length of reason can only be 80"),
+    .withMessage("Maximum length of reason can only be 80")
+    .escape(),
   body("paymentMode")
     .trim()
     .custom(async (value) => {
@@ -44,7 +45,8 @@ exports.putUpdateExpenseValidator = [
     .optional()
     .trim()
     .isLength({ max: 80 })
-    .withMessage("Maximum length of reason can only be 80"),
+    .withMessage("Maximum length of reason can only be 80")
+    .escape(),
   body("paymentMode")
     .optional()
     .trim()
@@ -62,7 +64,8 @@ exports.signupValidator = [
   body("password")
     .trim()
     .isLength({ min: 5 })
-    .withMessage("Minimum length of password required = 5"),
+    .withMessage("Minimum length of password required = 5")
+    .escape(),
   body("confirmPassword")
     .trim()
     .custom(async (value, { req }) => {
@@ -75,5 +78,5 @@ exports.signupValidator = [
 
 exports.loginValidator = [
   body("email", "Please enter a valid email").trim().isEmail().notEmpty(),
-  body("password", "Password cannot be empty").trim().notEmpty(),
+  body("password", "Password cannot be empty").trim().notEmpty().escape(),
 ];
