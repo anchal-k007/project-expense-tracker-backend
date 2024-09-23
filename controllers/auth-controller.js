@@ -3,6 +3,18 @@ const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user-model");
 const errorCreator = require("./../utils/error-creator");
 
+function createToken(user) {
+  const token = jwt.sign(
+    {
+      userId: user._id,
+    },
+    process.env.JWT_SECRET_STRING_DEV,
+    { expiresIn: "1D" }
+  );
+
+  return token;
+}
+
 exports.signup = async (req, res, next) => {
   // password and confirmPassword are matched in the validation middleware
   const { email, password, name } = req.body;
@@ -34,9 +46,11 @@ exports.signup = async (req, res, next) => {
 
   try {
     const createdNewUser = await newUser.save();
+    const token = createToken(createdNewUser);
     return res.status(201).json({
       status: "success",
       message: "user created successfully",
+      token,
       user: {
         userId: createdNewUser._id,
         name: createdNewUser.name,
@@ -64,18 +78,19 @@ exports.login = async (req, res, next) => {
       return next(errorCreator("Incorrect password entered", 400));
     }
 
-    const token = jwt.sign(
-      {
-        userId: foundUser._id,
-      },
-      process.env.JWT_SECRET_STRING_DEV,
-      { expiresIn: "1h" }
-    );
+    const token = createToken(foundUser);
+
+    const userDataToSend = {
+      userId: foundUser._id,
+      name: foundUser.name,
+      email: foundUser.email,
+    }
 
     return res.status(200).json({
       status: "success",
       message: "User logged in successfully",
       token,
+      user: userDataToSend
     });
   } catch (err) {
     console.log("an error occurred while logging in");
@@ -113,3 +128,27 @@ exports.isAuth = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports.verify = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const foundUser = await UserModel.findById(userId);
+    if(!foundUser) {
+      return next(errorCreator("No user found", 400));
+    }
+    
+    const userDataToSend = {
+      name: foundUser.name,
+      email: foundUser.email,
+      _id: foundUser._id
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Valid user",
+      user: userDataToSend
+    });
+  } catch (err) {
+    console.log("An error occurred while verifying");
+  }
+}
