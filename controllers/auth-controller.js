@@ -143,12 +143,16 @@ exports.verify = async (req, res, next) => {
       _id: foundUser._id
     }
 
+    const newToken = createToken(foundUser);
+
     return res.status(200).json({
       status: "success",
       message: "Valid user",
-      user: userDataToSend
+      user: userDataToSend,
+      token: newToken,
     });
   } catch (err) {
     console.log("An error occurred while verifying");
+    console.log(err);
   }
 }
