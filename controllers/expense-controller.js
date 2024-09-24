@@ -4,16 +4,15 @@ const errorCreator = require("../utils/error-creator");
 
 exports.getAllExpenses = async (req, res, next) => {
   try {
-    const { year, month, date } = req.query;
+    const { date } = req.query;
     const userId = req.userId;
     let filteredExpenses;
-    if (!year || !month || !date) {
+    if (!date) {
       filteredExpenses = await ExpenseModel.find({ user: userId }).limit(50);
     } else {
-      const createdDate = new Date(year, month, date);
       filteredExpenses = await ExpenseModel.find({
         user: userId,
-        date: createdDate.toISOString(),
+        date: date,
       });
     }
     res.status(200).json({
@@ -29,7 +28,7 @@ exports.postAddNewExpense = async (req, res, next) => {
   const { date, amount, paymentMode, reason } = req.body;
   const userId = req.userId;
   const newExpense = new ExpenseModel({
-    date: new Date(date),
+    date: date,
     amount: +amount,
     paymentMode,
     reason,
@@ -37,6 +36,7 @@ exports.postAddNewExpense = async (req, res, next) => {
   });
   try {
     const createdExpense = await newExpense.save();
+    console.log(createdExpense);
     const user = await UserModel.findByIdAndUpdate(userId, {
       $push: { expenses: createdExpense },
     });
