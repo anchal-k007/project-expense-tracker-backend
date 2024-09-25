@@ -1,12 +1,25 @@
-module.exports = (message, statusCode = 500) => {
+module.exports = (errObject, statusCode = 500) => {
   let err;
-  if(typeof(message) == "string") {
-    err = new Error(message);
+  if (typeof errObject == "string") {
+    err = new Error(errObject);
   } else {
-    err = new Error("The following validation errors occurred");
-    err.errors = message;
+    err = new Error(errObject.message);
+    err.errors = errObject.errors;
   }
   err.statusCode = statusCode;
   err.isOperationalError = true;
   return err;
-}
+};
+
+/**
+ * errObject can be of 2 types
+ * 
+ * 1. string -> will be set as the error message
+ * 2. 
+    {
+      message: will be set as the error message
+      errors: {
+        format to be decided. most probably used for validation errors
+      }
+    }
+ */

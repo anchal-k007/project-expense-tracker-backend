@@ -84,13 +84,13 @@ exports.login = async (req, res, next) => {
       userId: foundUser._id,
       name: foundUser.name,
       email: foundUser.email,
-    }
+    };
 
     return res.status(200).json({
       status: "success",
       message: "User logged in successfully",
       token,
-      user: userDataToSend
+      user: userDataToSend,
     });
   } catch (err) {
     console.log("an error occurred while logging in");
@@ -133,15 +133,15 @@ exports.verify = async (req, res, next) => {
   const userId = req.userId;
   try {
     const foundUser = await UserModel.findById(userId);
-    if(!foundUser) {
+    if (!foundUser) {
       return next(errorCreator("No user found", 400));
     }
-    
+
     const userDataToSend = {
       name: foundUser.name,
       email: foundUser.email,
-      _id: foundUser._id
-    }
+      _id: foundUser._id,
+    };
 
     const newToken = createToken(foundUser);
 
@@ -155,4 +155,4 @@ exports.verify = async (req, res, next) => {
     console.log("An error occurred while verifying");
     console.log(err);
   }
-}
+};
