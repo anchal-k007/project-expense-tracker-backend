@@ -36,7 +36,6 @@ exports.postAddNewExpense = async (req, res, next) => {
   });
   try {
     const createdExpense = await newExpense.save();
-    console.log(createdExpense);
     const user = await UserModel.findByIdAndUpdate(userId, {
       $push: { expenses: createdExpense },
     });
