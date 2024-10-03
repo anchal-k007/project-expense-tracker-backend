@@ -69,7 +69,7 @@ app.use(errorController);
 const run = async () => {
   try {
     await testConnection();
-    const PORT = 4000;
+    const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
       console.log(`Server started on port ${PORT}`);
     });
