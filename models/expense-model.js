@@ -30,7 +30,7 @@ const ExpenseSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { versionKey: false }
+  { versionKey: false, timestamps: true }
 );
 
 const ExpenseModel = mongoose.model("expense", ExpenseSchema);
