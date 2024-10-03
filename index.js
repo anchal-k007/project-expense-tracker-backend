@@ -10,20 +10,22 @@ const errorController = require("./controllers/error-controller");
 const errorCreator = require("./utils/error-creator");
 
 const app = express();
-const {
-  MONGODB_CONNECTION_URL,
-  MONGODB_USERNAME,
-  MONGODB_PASSWORD,
-  MONGODB_COLLECTION_NAME,
-} = process.env;
 
 const testConnection = async () => {
+  const {
+    MONGODB_CONNECTION_URL,
+    MONGODB_USERNAME,
+    MONGODB_PASSWORD,
+    MONGODB_COLLECTION_NAME_DEV,
+    MONGODB_COLLECTION_NAME_PROD,
+    NODE_ENV
+  } = process.env;
   const connectionString = MONGODB_CONNECTION_URL.replace(
     "<db_username>",
     MONGODB_USERNAME
   )
     .replace("<db_password>", MONGODB_PASSWORD)
-    .replace("<db_collection_name>", MONGODB_COLLECTION_NAME);
+    .replace("<db_collection_name>", NODE_ENV === "development" ? MONGODB_COLLECTION_NAME_DEV : MONGODB_COLLECTION_NAME_PROD);
   mongoose
     .connect(connectionString)
     .then((res) => {

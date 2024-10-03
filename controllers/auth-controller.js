@@ -4,11 +4,15 @@ const UserModel = require("../models/user-model");
 const errorCreator = require("./../utils/error-creator");
 
 function createToken(user) {
+  const secretKey =
+    process.env.NODE_ENV === "development"
+      ? process.env.JWT_SECRET_STRING_DEV
+      : process.env.JWT_SECRET_STRING_PROD;
   const token = jwt.sign(
     {
       userId: user._id,
     },
-    process.env.JWT_SECRET_STRING_DEV,
+    secretKey,
     { expiresIn: "1D" }
   );
 
@@ -109,10 +113,14 @@ exports.isAuth = async (req, res, next) => {
     );
   }
   const jwtToken = authHeader.split(" ")[1];
+  const secretKey =
+    process.env.NODE_ENV === "development"
+      ? process.env.JWT_SECRET_STRING_DEV
+      : process.env.JWT_SECRET_STRING_PROD;
   try {
     const decodedToken = jwt.verify(
       jwtToken,
-      process.env.JWT_SECRET_STRING_DEV
+      secretKey
     );
     if (!decodedToken) {
       return next(errorCreator("Invalid jwt token", 400));
