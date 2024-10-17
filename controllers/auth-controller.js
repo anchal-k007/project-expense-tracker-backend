@@ -5,9 +5,9 @@ const errorCreator = require("./../utils/error-creator");
 
 function createToken(user) {
   const secretKey =
-    process.env.NODE_ENV === "development"
-      ? process.env.JWT_SECRET_STRING_DEV
-      : process.env.JWT_SECRET_STRING_PROD;
+    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod")
+    ? process.env.JWT_SECRET_STRING_PROD
+    : process.env.JWT_SECRET_STRING_DEV;
   const token = jwt.sign(
     {
       userId: user._id,
@@ -114,9 +114,9 @@ exports.isAuth = async (req, res, next) => {
   }
   const jwtToken = authHeader.split(" ")[1];
   const secretKey =
-    process.env.NODE_ENV === "development"
-      ? process.env.JWT_SECRET_STRING_DEV
-      : process.env.JWT_SECRET_STRING_PROD;
+    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod")
+    ? process.env.JWT_SECRET_STRING_PROD
+    : process.env.JWT_SECRET_STRING_DEV;
   try {
     const decodedToken = jwt.verify(
       jwtToken,
