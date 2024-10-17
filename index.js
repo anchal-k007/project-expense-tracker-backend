@@ -6,6 +6,7 @@ const helmet = require("helmet");
 
 const expenseRouter = require("./routes/expense-router");
 const authRouter = require("./routes/auth-routes");
+const queryRouter = require("./routes/query-router");
 const errorController = require("./controllers/error-controller");
 const errorCreator = require("./utils/error-creator");
 
@@ -52,6 +53,7 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/expenses", expenseRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/query", queryRouter);
 
 app.use(helmet());
 
