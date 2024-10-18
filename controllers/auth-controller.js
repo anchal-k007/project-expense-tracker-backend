@@ -125,6 +125,10 @@ exports.isAuth = async (req, res, next) => {
     if (!decodedToken) {
       return next(errorCreator("Invalid jwt token", 400));
     }
+    const foundUser = await UserModel.findById(decodedToken.userId);
+    if (!foundUser) {
+      return next(errorCreator("No user found", 400));
+    }
     req.userId = decodedToken.userId;
     next();
   } catch (err) {
