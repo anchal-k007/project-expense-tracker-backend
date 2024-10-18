@@ -19,14 +19,19 @@ const testConnection = async () => {
     MONGODB_PASSWORD,
     MONGODB_COLLECTION_NAME_DEV,
     MONGODB_COLLECTION_NAME_PROD,
-    NODE_ENV
+    NODE_ENV,
   } = process.env;
   const connectionString = MONGODB_CONNECTION_URL.replace(
     "<db_username>",
     MONGODB_USERNAME
   )
     .replace("<db_password>", MONGODB_PASSWORD)
-    .replace("<db_collection_name>", NODE_ENV === "development" ? MONGODB_COLLECTION_NAME_DEV : MONGODB_COLLECTION_NAME_PROD);
+    .replace(
+      "<db_collection_name>",
+      NODE_ENV === "production" || NODE_ENV === "prod"
+        ? MONGODB_COLLECTION_NAME_PROD
+        : MONGODB_COLLECTION_NAME_DEV
+    );
   mongoose
     .connect(connectionString)
     .then((res) => {
@@ -85,8 +90,3 @@ const run = async () => {
 };
 
 run();
-
-// TODO
-// 1. Add validation logic
-// 2. Add error handling -> done
-// 3. Refactoring
