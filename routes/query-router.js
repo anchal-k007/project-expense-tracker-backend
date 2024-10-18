@@ -4,6 +4,6 @@ const { getAllDocuments } = require("../controllers/query-controller");
 
 const router = express.Router();
 
-router.get("/all?:startDate&:endDate", isAuth, getAllDocuments);
+router.get("/all", isAuth, getAllDocuments);
 
 module.exports = router;
