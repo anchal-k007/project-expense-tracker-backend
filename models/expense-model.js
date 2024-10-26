@@ -26,19 +26,19 @@ const ExpenseSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel",
+      ref: "User",
       required: true,
     },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "TagModel"
+        ref: "Tag"
       }
     ]
   },
   { versionKey: false, timestamps: true }
 );
 
-const ExpenseModel = mongoose.model("expense", ExpenseSchema);
+const ExpenseModel = mongoose.model("Expense", ExpenseSchema);
 
 module.exports = ExpenseModel;

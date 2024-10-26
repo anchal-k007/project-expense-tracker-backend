@@ -12,19 +12,19 @@ const TagSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
       required: [true, "A tag must belong to a user"],
     },
     expenses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "expenses",
+        ref: "Expense",
       },
     ],
   },
   { versionKey: false, timestamps: true }
 );
 
-const TagModel = mongoose.model("tag", TagSchema);
+const TagModel = mongoose.model("Tag", TagSchema);
 
 module.exports = TagModel;

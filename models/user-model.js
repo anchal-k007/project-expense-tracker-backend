@@ -18,13 +18,13 @@ const UserSchema = new mongoose.Schema(
     expenses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ExpenseModel",
+        ref: "Expense",
       },
     ],
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "tag"
+        ref: "Tag"
       }
     ],
   },
