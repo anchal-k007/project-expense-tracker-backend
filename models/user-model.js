@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const TagModel = require("./tag-model");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -19,6 +20,12 @@ const UserSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "ExpenseModel",
       },
+    ],
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tag"
+      }
     ],
   },
   { versionKey: false, timestamps: true }

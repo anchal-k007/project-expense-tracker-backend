@@ -29,6 +29,12 @@ const ExpenseSchema = new mongoose.Schema(
       ref: "UserModel",
       required: true,
     },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TagModel"
+      }
+    ]
   },
   { versionKey: false, timestamps: true }
 );
