@@ -1,5 +1,6 @@
 const UserModel = require("./../models/user-model");
 const TagModel = require("./../models/tag-model");
+const errorCreator = require("../utils/error-creator");
 
 exports.getTags = async (req, res, next) => {
   const userId = req.userId;
@@ -57,5 +58,34 @@ exports.postCreateTag = async (req, res, next) => {
     // Remove the created tag from the db
     await TagModel.findByIdAndDelete(createdTag._id);
     throw err;
+  }
+};
+
+exports.putUpdateTag = async (req, res, next) => {
+  const userId = req.userId;
+  const { tagId } = req.params;
+  const validProperties = ["name", "active"];
+  const dataToUpdate = req.body;
+  // filter unnecessary fields
+  Object.keys(dataToUpdate).forEach(
+    (key) => !validProperties.includes(key) && delete dataToUpdate[key]
+  );
+
+  try {
+    const updatedTag = await TagModel.findByIdAndUpdate(
+      tagId,
+      dataToUpdate,
+      { returnDocument: "after" }
+    );
+    if(!updatedTag) {
+      return next(errorCreator(`No tag with id=${tagId} exists for the user`, 404));
+    }
+    return res.status(200).json({
+      status: "success",
+      tag: updatedTag,
+    })
+  } catch (err) {
+    console.log("An error occurred while updating tags");
+    console.log(err);
   }
 };
