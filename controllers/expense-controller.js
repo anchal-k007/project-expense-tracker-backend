@@ -88,7 +88,7 @@ exports.deleteRemoveExpense = async (req, res, next) => {
 
 exports.putUpdateExpense = async (req, res, next) => {
   const userId = req.userId;
-  const validProperties = ["paymentMode", "amount", "date", "reason"];
+  const validProperties = ["paymentMode", "amount", "date", "reason", "tags"];
   const expenseId = req.params.expenseId;
   const dataToUpdate = req.body;
   // filter unnecessary fields
@@ -97,17 +97,48 @@ exports.putUpdateExpense = async (req, res, next) => {
   );
 
   try {
+    // Find the tags before update
+    const oldTagsSet = new Set();
+    (await ExpenseModel.findById(expenseId, { tags: 1, _id: -1 })).tags.forEach(
+      (tagId) => oldTagsSet.add(tagId.toString())
+    );
+
+    // Update the expense
     const updatedExpense = await ExpenseModel.findOneAndUpdate(
       { _id: expenseId, user: userId },
       dataToUpdate,
       { runValidators: true, returnDocument: "after" }
     );
+
+    // Check 
     if (!updatedExpense) {
       return next(
         errorCreator(`No expense found with the expenseId = ${expenseId}`, 404)
       );
     }
-    res.status(200).json({
+
+    // Update the tags
+    updatedExpense.tags.forEach(async (tagId) => {
+      if (oldTagsSet.has(tagId.toString())) {
+        // This tag was already present and has not been modified
+        oldTagsSet.delete(tagId.toString());
+      } else {
+        // New tag added to the expense
+        await TagModel.findByIdAndUpdate(tagId, {
+          $push: { expenses: updatedExpense._id },
+        });
+      }
+    });
+
+    // Tags remaining in the set have been removed from the expense
+    const oldTagsArray = Array.from(oldTagsSet);
+    oldTagsArray.forEach(async (tagId) => {
+      await TagModel.findByIdAndUpdate(tagId, {
+        $pull: { expenses: updatedExpense._id },
+      });
+    });
+
+    return res.status(200).json({
       status: "success",
       updatedExpense,
     });
