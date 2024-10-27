@@ -60,10 +60,13 @@ exports.deleteRemoveExpense = async (req, res, next) => {
   const expenseId = req.params.expenseId;
   const userId = req.userId;
   try {
+    // Delete the expense
     const deletedExpense = await ExpenseModel.findOneAndDelete({
       _id: expenseId,
       user: userId,
     });
+
+    // Check
     if (!deletedExpense) {
       return next(
         errorCreator(
@@ -72,10 +75,20 @@ exports.deleteRemoveExpense = async (req, res, next) => {
         )
       );
     }
+
+    // Update user
     const updatedUser = await UserModel.findByIdAndUpdate(userId, {
       $pull: { expenses: deletedExpense._id },
     });
-    res.status(204).json({
+
+    // Update tags
+    deletedExpense.tags.forEach(async (tagId) => {
+      await TagModel.findByIdAndUpdate(tagId, {
+        $pull: { expenses: deletedExpense._id },
+      });
+    });
+
+    return res.status(204).json({
       status: "success",
       message: "Deleted the following expense",
       data: deletedExpense,
@@ -110,7 +123,7 @@ exports.putUpdateExpense = async (req, res, next) => {
       { runValidators: true, returnDocument: "after" }
     );
 
-    // Check 
+    // Check
     if (!updatedExpense) {
       return next(
         errorCreator(`No expense found with the expenseId = ${expenseId}`, 404)
