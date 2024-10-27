@@ -1,5 +1,6 @@
 const UserModel = require("../models/user-model");
 const ExpenseModel = require("./../models/expense-model");
+const TagModel = require("../models/tag-model");
 const errorCreator = require("../utils/error-creator");
 
 exports.getAllExpenses = async (req, res, next) => {
@@ -25,7 +26,7 @@ exports.getAllExpenses = async (req, res, next) => {
 };
 
 exports.postAddNewExpense = async (req, res, next) => {
-  const { date, amount, paymentMode, reason } = req.body;
+  const { date, amount, paymentMode, reason, tags } = req.body;
   const userId = req.userId;
   const newExpense = new ExpenseModel({
     date: date,
@@ -33,11 +34,17 @@ exports.postAddNewExpense = async (req, res, next) => {
     paymentMode,
     reason,
     user: userId,
+    tags,
   });
   try {
     const createdExpense = await newExpense.save();
     const user = await UserModel.findByIdAndUpdate(userId, {
       $push: { expenses: createdExpense },
+    });
+    tags.forEach(async (tagId) => {
+      await TagModel.findByIdAndUpdate(tagId, {
+        $push: { expenses: createdExpense._id },
+      });
     });
     res.status(201).json({
       status: "success",
