@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.route("/tags").get(isAuth, getTags).post(isAuth, postCreateTag);
 
-router.route("/tag/:tagId").put(isAuth, putUpdateTag);
+router.route("/tags/:tagId").put(isAuth, putUpdateTag);
 
 module.exports = router;
