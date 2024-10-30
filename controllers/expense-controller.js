@@ -9,12 +9,14 @@ exports.getAllExpenses = async (req, res, next) => {
     const userId = req.userId;
     let filteredExpenses;
     if (!date) {
-      filteredExpenses = await ExpenseModel.find({ user: userId }).limit(50);
+      filteredExpenses = await ExpenseModel.find({ user: userId })
+        .populate({ path: "tags", select: { name: 1, active: 1 } })
+        .limit(50);
     } else {
       filteredExpenses = await ExpenseModel.find({
         user: userId,
         date: date,
-      });
+      }).populate({ path: "tags", select: { name: 1, active: 1 } });
     }
     res.status(200).json({
       expenses: filteredExpenses,
