@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const TagModel = require("./tag-model");
+const ModelNames = require("./model-name-constants");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -18,19 +18,19 @@ const UserSchema = new mongoose.Schema(
     expenses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Expense",
+        ref: ModelNames.EXPENSE_MODEL_NAME,
       },
     ],
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag"
+        ref: ModelNames.TAG_MODEL_NAME,
       }
     ],
   },
   { versionKey: false, timestamps: true }
 );
 
-const UserModel = mongoose.model("User", UserSchema);
+const UserModel = mongoose.model(ModelNames.USER_MODEL_NAME, UserSchema);
 
 module.exports = UserModel;
