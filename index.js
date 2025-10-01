@@ -22,16 +22,11 @@ const testConnection = async () => {
     MONGODB_COLLECTION_NAME_PROD,
     NODE_ENV,
   } = process.env;
-  const connectionString = MONGODB_CONNECTION_URL.replace(
-    "<db_username>",
-    MONGODB_USERNAME
-  )
+  const connectionString = MONGODB_CONNECTION_URL.replace("<db_username>", MONGODB_USERNAME)
     .replace("<db_password>", MONGODB_PASSWORD)
     .replace(
       "<db_collection_name>",
-      NODE_ENV === "production" || NODE_ENV === "prod"
-        ? MONGODB_COLLECTION_NAME_PROD
-        : MONGODB_COLLECTION_NAME_DEV
+      NODE_ENV === "production" || NODE_ENV === "prod" ? MONGODB_COLLECTION_NAME_PROD : MONGODB_COLLECTION_NAME_DEV,
     );
   mongoose
     .connect(connectionString)
@@ -49,10 +44,7 @@ app.use(bodyParser.json()); // accepts application/json data
 // Headers are set here to avoid running into CORS error
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "*");
   next();
 });

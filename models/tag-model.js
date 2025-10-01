@@ -23,7 +23,7 @@ const TagSchema = new mongoose.Schema(
       },
     ],
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false, timestamps: true },
 );
 
 const TagModel = mongoose.model(ModelNames.TAG_MODEL_NAME, TagSchema);

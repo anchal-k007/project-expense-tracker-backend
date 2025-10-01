@@ -21,7 +21,7 @@ exports.getAllDocuments = async (req, res, next) => {
         user: userId,
         date: { $gte: startDate, $lte: endDate },
       },
-      { amount: 1, date: 1, paymentMode: 1 }
+      { amount: 1, date: 1, paymentMode: 1 },
     ).sort({ date: 1 });
     return res.status(200).json({
       message: "success",

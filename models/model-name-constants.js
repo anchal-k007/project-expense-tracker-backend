@@ -6,4 +6,4 @@ module.exports = {
   EXPENSE_MODEL_NAME,
   TAG_MODEL_NAME,
   USER_MODEL_NAME,
-}
+};

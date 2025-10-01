@@ -71,10 +71,7 @@ exports.deleteRemoveExpense = async (req, res, next) => {
     // Check
     if (!deletedExpense) {
       return next(
-        errorCreator(
-          `Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`,
-          404
-        )
+        errorCreator(`Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`, 404),
       );
     }
 
@@ -107,29 +104,24 @@ exports.putUpdateExpense = async (req, res, next) => {
   const expenseId = req.params.expenseId;
   const dataToUpdate = req.body;
   // filter unnecessary fields
-  Object.keys(dataToUpdate).forEach(
-    (key) => !validProperties.includes(key) && delete dataToUpdate[key]
-  );
+  Object.keys(dataToUpdate).forEach((key) => !validProperties.includes(key) && delete dataToUpdate[key]);
 
   try {
     // Find the tags before update
     const oldTagsSet = new Set();
-    (await ExpenseModel.findById(expenseId, { tags: 1, _id: -1 })).tags.forEach(
-      (tagId) => oldTagsSet.add(tagId.toString())
+    (await ExpenseModel.findById(expenseId, { tags: 1, _id: -1 })).tags.forEach((tagId) =>
+      oldTagsSet.add(tagId.toString()),
     );
 
     // Update the expense
-    const updatedExpense = await ExpenseModel.findOneAndUpdate(
-      { _id: expenseId, user: userId },
-      dataToUpdate,
-      { runValidators: true, returnDocument: "after" }
-    );
+    const updatedExpense = await ExpenseModel.findOneAndUpdate({ _id: expenseId, user: userId }, dataToUpdate, {
+      runValidators: true,
+      returnDocument: "after",
+    });
 
     // Check
     if (!updatedExpense) {
-      return next(
-        errorCreator(`No expense found with the expenseId = ${expenseId}`, 404)
-      );
+      return next(errorCreator(`No expense found with the expenseId = ${expenseId}`, 404));
     }
 
     // Update the tags
