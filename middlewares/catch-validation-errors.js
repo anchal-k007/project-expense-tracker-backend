@@ -11,9 +11,9 @@ module.exports = async (req, res, next) => {
       };
     });
     const errorObject = {
-      message : "The following validation errors occurred",
+      message: "The following validation errors occurred",
       errors,
-    }
+    };
     return next(errorCreator(errorObject, 404));
   }
   // No validation errors present

@@ -5,15 +5,15 @@ const errorCreator = require("./../utils/error-creator");
 
 function createToken(user) {
   const secretKey =
-    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod")
-    ? process.env.JWT_SECRET_STRING_PROD
-    : process.env.JWT_SECRET_STRING_DEV;
+    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod"
+      ? process.env.JWT_SECRET_STRING_PROD
+      : process.env.JWT_SECRET_STRING_DEV;
   const token = jwt.sign(
     {
       userId: user._id,
     },
     secretKey,
-    { expiresIn: "1D" }
+    { expiresIn: "1D" },
   );
 
   return token;
@@ -42,9 +42,7 @@ exports.signup = async (req, res, next) => {
       return next(errorCreator(`User with email ${email} already exists`, 400));
     }
   } catch (err) {
-    console.log(
-      "An error occurred while checking if user with the email already exists the password"
-    );
+    console.log("An error occurred while checking if user with the email already exists the password");
     return next(err);
   }
 
@@ -72,9 +70,7 @@ exports.login = async (req, res, next) => {
   try {
     const foundUser = await UserModel.findOne({ email });
     if (!foundUser) {
-      return next(
-        errorCreator(`No user exists with the email = ${email}`, 404)
-      );
+      return next(errorCreator(`No user exists with the email = ${email}`, 404));
     }
 
     const isPasswordEqual = await bcrypt.compare(password, foundUser.password);
@@ -105,23 +101,15 @@ exports.login = async (req, res, next) => {
 exports.isAuth = async (req, res, next) => {
   const authHeader = req.get("Authorization");
   if (!authHeader) {
-    return next(
-      errorCreator(
-        "No authorization header present, cannot authenticate user",
-        400
-      )
-    );
+    return next(errorCreator("No authorization header present, cannot authenticate user", 400));
   }
   const jwtToken = authHeader.split(" ")[1];
   const secretKey =
-    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod")
-    ? process.env.JWT_SECRET_STRING_PROD
-    : process.env.JWT_SECRET_STRING_DEV;
+    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod"
+      ? process.env.JWT_SECRET_STRING_PROD
+      : process.env.JWT_SECRET_STRING_DEV;
   try {
-    const decodedToken = jwt.verify(
-      jwtToken,
-      secretKey
-    );
+    const decodedToken = jwt.verify(jwtToken, secretKey);
     if (!decodedToken) {
       return next(errorCreator("Invalid jwt token", 400));
     }

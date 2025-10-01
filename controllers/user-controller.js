@@ -44,7 +44,7 @@ exports.postCreateTag = async (req, res, next) => {
       {
         $push: { tags: createdTag },
       },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
     // Return the newly created tag
     return res.status(201).json({
@@ -52,9 +52,7 @@ exports.postCreateTag = async (req, res, next) => {
       tag: createdTag,
     });
   } catch (err) {
-    console.log(
-      "An error occurred while attaching the created tag to the user"
-    );
+    console.log("An error occurred while attaching the created tag to the user");
     // Remove the created tag from the db
     await TagModel.findByIdAndDelete(createdTag._id);
     throw err;
@@ -67,23 +65,17 @@ exports.putUpdateTag = async (req, res, next) => {
   const validProperties = ["name", "active"];
   const dataToUpdate = req.body;
   // filter unnecessary fields
-  Object.keys(dataToUpdate).forEach(
-    (key) => !validProperties.includes(key) && delete dataToUpdate[key]
-  );
+  Object.keys(dataToUpdate).forEach((key) => !validProperties.includes(key) && delete dataToUpdate[key]);
 
   try {
-    const updatedTag = await TagModel.findByIdAndUpdate(
-      tagId,
-      dataToUpdate,
-      { returnDocument: "after" }
-    );
-    if(!updatedTag) {
+    const updatedTag = await TagModel.findByIdAndUpdate(tagId, dataToUpdate, { returnDocument: "after" });
+    if (!updatedTag) {
       return next(errorCreator(`No tag with id=${tagId} exists for the user`, 404));
     }
     return res.status(200).json({
       status: "success",
       tag: updatedTag,
-    })
+    });
   } catch (err) {
     console.log("An error occurred while updating tags");
     console.log(err);

@@ -25,10 +25,10 @@ const UserSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: ModelNames.TAG_MODEL_NAME,
-      }
+      },
     ],
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false, timestamps: true },
 );
 
 const UserModel = mongoose.model(ModelNames.USER_MODEL_NAME, UserSchema);

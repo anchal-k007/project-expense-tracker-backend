@@ -34,10 +34,10 @@ const ExpenseSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: ModelNames.TAG_MODEL_NAME,
-      }
-    ]
+      },
+    ],
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false, timestamps: true },
 );
 
 const ExpenseModel = mongoose.model(ModelNames.EXPENSE_MODEL_NAME, ExpenseSchema);
