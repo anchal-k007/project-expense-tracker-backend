@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ModelNames = require("./model-name-constants");
 
 const ExpenseSchema = new mongoose.Schema(
   {
@@ -26,19 +27,19 @@ const ExpenseSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: ModelNames.USER_MODEL_NAME,
       required: true,
     },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag"
+        ref: ModelNames.TAG_MODEL_NAME,
       }
     ]
   },
   { versionKey: false, timestamps: true }
 );
 
-const ExpenseModel = mongoose.model("Expense", ExpenseSchema);
+const ExpenseModel = mongoose.model(ModelNames.EXPENSE_MODEL_NAME, ExpenseSchema);
 
 module.exports = ExpenseModel;
