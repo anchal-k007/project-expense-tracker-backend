@@ -130,9 +130,10 @@ exports.putUpdatePaymentMethod = async (req, res, next) => {
     }
     const validProperties = ["name", "active"];
     const dataToUpdate = filterProperties(req.body, validProperties);
-    console.log({ dataToUpdate, reqBody: req.body });
     try {
-      const updatedPaymentMethod = await paymentMethod.save(dataToUpdate);
+      const updatedPaymentMethod = await PaymentMethodModel.findByIdAndUpdate(paymentMethodId, dataToUpdate, {
+        returnDocument: "after",
+      });
       return res.status(200).json({
         status: "success",
         paymentMethod: updatedPaymentMethod,
