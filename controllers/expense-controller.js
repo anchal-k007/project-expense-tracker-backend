@@ -33,6 +33,35 @@ exports.getAllExpenses = async (req, res, next) => {
   }
 };
 
+exports.getExpenseDetails = async (req, res, next) => {
+  const userId = req.userId;
+  const { expenseId } = req.params;
+  try {
+    const expense = await ExpenseModel.findOne({ _id: expenseId, user: userId })
+      .populate({
+        path: "tags",
+      })
+      .populate({
+        path: "paymentMethod",
+      });
+
+    if (!expense) {
+      return next(
+        errorCreator(`Expense with id = ${expenseId} does not exist for the user ${userId}`, 404),
+      );
+    }
+
+    return res.status(200).json({
+      status: "success",
+      expense,
+    });
+  } catch (err) {
+    console.log("An error occurred while fetching expense details");
+    console.log(err);
+    return next(err);
+  }
+};
+
 exports.postAddNewExpense = async (req, res, next) => {
   const { date, amount, paymentMode, reason, tags, paymentMethodId } = req.body;
   const userId = req.userId;

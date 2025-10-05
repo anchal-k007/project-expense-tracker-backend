@@ -4,6 +4,7 @@ const {
   postAddNewExpense,
   deleteRemoveExpense,
   putUpdateExpense,
+  getExpenseDetails,
 } = require("../controllers/expense-controller");
 const { isAuth } = require("../controllers/auth-controller");
 const {
@@ -16,6 +17,8 @@ const catchValidationErrors = require("../middlewares/catch-validation-errors");
 const router = express.Router();
 
 router.get("/get-expenses", isAuth, getAllExpenses);
+
+router.get("/:expenseId", isAuth, getExpenseDetails);
 
 router.post("/new", isAuth, postAddNewExpenseValidator, catchValidationErrors, postAddNewExpense);
 
