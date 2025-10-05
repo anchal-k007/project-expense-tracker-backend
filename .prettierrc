@@ -1,0 +1,6 @@
+{
+  "trailingComma": "all",
+  "objectWrap": "preserve",
+  "semi": true,
+  "printWidth": 100
+}

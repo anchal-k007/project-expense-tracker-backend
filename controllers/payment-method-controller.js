@@ -18,7 +18,12 @@ exports.getPaymentMethod = async (req, res, next) => {
       return next(errorCreator(`No payment method with the id = ${paymentMethodId} exists`, 404));
     }
     if (paymentMethod.user._id.toString() !== userId) {
-      return next(errorCreator(`No payment method with the id = ${paymentMethodId} exists for this user`, 404));
+      return next(
+        errorCreator(
+          `No payment method with the id = ${paymentMethodId} exists for this user`,
+          404,
+        ),
+      );
     }
     return res.status(200).json({
       status: "success",
@@ -49,7 +54,9 @@ exports.getAllPaymentMethodsForUser = async (req, res, next) => {
       paymentMethods: user.paymentMethods,
     });
   } catch (err) {
-    console.log("Failed to get payment methods associated with the current user. Please try again later");
+    console.log(
+      "Failed to get payment methods associated with the current user. Please try again later",
+    );
     console.log(err);
     return next(err);
   }
@@ -124,14 +131,23 @@ exports.putUpdatePaymentMethod = async (req, res, next) => {
     }
     // Check if payment method belongs to the current user
     if (paymentMethod.user._id.toString() !== userId) {
-      return next(errorCreator(`No payment method with the id = ${paymentMethodId} exists for this user`, 404));
+      return next(
+        errorCreator(
+          `No payment method with the id = ${paymentMethodId} exists for this user`,
+          404,
+        ),
+      );
     }
     const validProperties = ["name", "active"];
     const dataToUpdate = filterProperties(req.body, validProperties);
     try {
-      const updatedPaymentMethod = await PaymentMethodModel.findByIdAndUpdate(paymentMethodId, dataToUpdate, {
-        returnDocument: "after",
-      });
+      const updatedPaymentMethod = await PaymentMethodModel.findByIdAndUpdate(
+        paymentMethodId,
+        dataToUpdate,
+        {
+          returnDocument: "after",
+        },
+      );
       return res.status(200).json({
         status: "success",
         paymentMethod: updatedPaymentMethod,

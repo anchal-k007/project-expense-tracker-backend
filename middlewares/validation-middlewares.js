@@ -7,7 +7,11 @@ exports.postAddNewExpenseValidator = [
     .isNumeric()
     .custom((value) => value > 0)
     .withMessage("Please enter a valid amount"),
-  body("reason").trim().isLength({ max: 80 }).withMessage("Maximum length of reason can only be 80").escape(),
+  body("reason")
+    .trim()
+    .isLength({ max: 80 })
+    .withMessage("Maximum length of reason can only be 80")
+    .escape(),
   body("paymentMode")
     .trim()
     .custom(async (value) => {
@@ -51,7 +55,11 @@ exports.putUpdateExpenseValidator = [
 ];
 
 exports.signupValidator = [
-  body("password").trim().isLength({ min: 5 }).withMessage("Minimum length of password required = 5").escape(),
+  body("password")
+    .trim()
+    .isLength({ min: 5 })
+    .withMessage("Minimum length of password required = 5")
+    .escape(),
   body("confirmPassword")
     .trim()
     .custom(async (value, { req }) => {

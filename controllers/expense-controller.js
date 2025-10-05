@@ -86,7 +86,10 @@ exports.deleteRemoveExpense = async (req, res, next) => {
     // Check
     if (!deletedExpense) {
       return next(
-        errorCreator(`Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`, 404),
+        errorCreator(
+          `Did not find an expense with the id = ${expenseId} belonging to the user ${userId}`,
+          404,
+        ),
       );
     }
 
@@ -131,16 +134,24 @@ exports.putUpdateExpense = async (req, res, next) => {
   }
 
   try {
-    const oldExpense = await ExpenseModel.findById(expenseId).select({ tags: 1, paymentMethod: 1, _id: -1 });
+    const oldExpense = await ExpenseModel.findById(expenseId).select({
+      tags: 1,
+      paymentMethod: 1,
+      _id: -1,
+    });
     // Find the tags before update
     const oldTagsSet = new Set();
     oldExpense.tags.forEach((tagId) => oldTagsSet.add(tagId.toString()));
 
     // Update the expense
-    const updatedExpense = await ExpenseModel.findOneAndUpdate({ _id: expenseId, user: userId }, dataToUpdate, {
-      runValidators: true,
-      returnDocument: "after",
-    });
+    const updatedExpense = await ExpenseModel.findOneAndUpdate(
+      { _id: expenseId, user: userId },
+      dataToUpdate,
+      {
+        runValidators: true,
+        returnDocument: "after",
+      },
+    );
 
     // Check
     if (!updatedExpense) {
