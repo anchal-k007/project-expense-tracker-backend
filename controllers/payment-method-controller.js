@@ -33,13 +33,11 @@ exports.getPaymentMethod = async (req, res, next) => {
 
 exports.getAllPaymentMethodsForUser = async (req, res, next) => {
   const userId = req.userId;
+  const { active: getActiveTags } = req.query;
   try {
     const user = await UserModel.findById(userId).populate({
       path: "paymentMethods",
-    });
-
-    console.log({
-      user,
+      match: getActiveTags ? { active: true } : {},
     });
 
     if (!user) {
