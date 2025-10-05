@@ -77,7 +77,7 @@ const run = async () => {
       console.log(`Server started on port ${PORT}`);
     });
   } catch (err) {
-    console.log("An error occureed");
+    console.log("An error occurred");
     console.log(err);
     process.exit(1);
   }
