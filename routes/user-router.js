@@ -1,5 +1,5 @@
 const express = require("express");
-const { isAuth } = require("./../controllers/auth-controller");
+const { isAuth } = require("../controllers/auth-controller");
 const {
   getTags,
   postCreateTag,
