@@ -6,7 +6,7 @@ const helmet = require("helmet");
 
 const expenseRouter = require("./routes/expense-router");
 const authRouter = require("./routes/auth-routes");
-const userRouter = require("./routes/user-routes");
+const userRouter = require("./routes/user-router");
 const queryRouter = require("./routes/query-router");
 const errorController = require("./controllers/error-controller");
 const errorCreator = require("./utils/error-creator");
