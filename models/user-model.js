@@ -27,6 +27,12 @@ const UserSchema = new mongoose.Schema(
         ref: ModelNames.TAG_MODEL_NAME,
       },
     ],
+    paymentMethods: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: ModelNames.PAYMENT_METHOD_MODEL_NAME,
+      },
+    ],
   },
   { versionKey: false, timestamps: true },
 );
