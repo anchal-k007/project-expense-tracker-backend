@@ -16,12 +16,24 @@ const catchValidationErrors = require("../middlewares/catch-validation-errors");
 
 const router = express.Router();
 
+// TODO: deprecate this route after migration
 router.get("/get-expenses", isAuth, getAllExpenses);
 
-router.get("/:expenseId", isAuth, getExpenseDetails);
+router
+  .route("/:expenseId")
+  .get(isAuth, getExpenseDetails)
+  .put(isAuth, putUpdateExpenseValidator, catchValidationErrors, putUpdateExpense)
+  .delete(isAuth, deleteRemoveExpenseValidator, catchValidationErrors, deleteRemoveExpense);
 
+router
+  .route("")
+  .get(isAuth, getAllExpenses)
+  .post(isAuth, postAddNewExpenseValidator, catchValidationErrors, postAddNewExpense);
+
+// TODO: deprecate this route after migration
 router.post("/new", isAuth, postAddNewExpenseValidator, catchValidationErrors, postAddNewExpense);
 
+// TODO: deprecate this route after migration
 router
   .delete(
     "/delete/:expenseId",
