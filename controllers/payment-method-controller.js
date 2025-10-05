@@ -47,7 +47,7 @@ exports.postCreatePaymentMethod = async (req, res, next) => {
     }
     // Update the user with the newly created payment method
     try {
-      UserModel.findByIdAndUpdate(
+      const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
         {
           $push: {
@@ -56,6 +56,7 @@ exports.postCreatePaymentMethod = async (req, res, next) => {
         },
         { returnDocument: "after" },
       );
+      console.log({ updatedUser });
       // Return the new payment method
       return res.status(201).json({
         status: "success",
