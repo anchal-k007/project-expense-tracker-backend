@@ -42,7 +42,9 @@ exports.signup = async (req, res, next) => {
       return next(errorCreator(`User with email ${email} already exists`, 400));
     }
   } catch (err) {
-    console.log("An error occurred while checking if user with the email already exists the password");
+    console.log(
+      "An error occurred while checking if user with the email already exists the password",
+    );
     return next(err);
   }
 

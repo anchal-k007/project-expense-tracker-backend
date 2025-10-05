@@ -26,7 +26,9 @@ const testConnection = async () => {
     .replace("<db_password>", MONGODB_PASSWORD)
     .replace(
       "<db_collection_name>",
-      NODE_ENV === "production" || NODE_ENV === "prod" ? MONGODB_COLLECTION_NAME_PROD : MONGODB_COLLECTION_NAME_DEV,
+      NODE_ENV === "production" || NODE_ENV === "prod"
+        ? MONGODB_COLLECTION_NAME_PROD
+        : MONGODB_COLLECTION_NAME_DEV,
     );
   mongoose
     .connect(connectionString)

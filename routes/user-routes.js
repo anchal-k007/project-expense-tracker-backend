@@ -14,8 +14,14 @@ router.route("/tags").get(isAuth, getTags).post(isAuth, postCreateTag);
 
 router.route("/tags/:tagId").put(isAuth, putUpdateTag);
 
-router.route("/payment-method").get(isAuth, getAllPaymentMethodsForUser).post(isAuth, postCreatePaymentMethod);
+router
+  .route("/payment-method")
+  .get(isAuth, getAllPaymentMethodsForUser)
+  .post(isAuth, postCreatePaymentMethod);
 
-router.route("/payment-method/:paymentMethodId").get(isAuth, getPaymentMethod).put(isAuth, putUpdatePaymentMethod);
+router
+  .route("/payment-method/:paymentMethodId")
+  .get(isAuth, getPaymentMethod)
+  .put(isAuth, putUpdatePaymentMethod);
 
 module.exports = router;

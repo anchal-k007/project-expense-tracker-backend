@@ -65,10 +65,14 @@ exports.putUpdateTag = async (req, res, next) => {
   const validProperties = ["name", "active"];
   const dataToUpdate = req.body;
   // filter unnecessary fields
-  Object.keys(dataToUpdate).forEach((key) => !validProperties.includes(key) && delete dataToUpdate[key]);
+  Object.keys(dataToUpdate).forEach(
+    (key) => !validProperties.includes(key) && delete dataToUpdate[key],
+  );
 
   try {
-    const updatedTag = await TagModel.findByIdAndUpdate(tagId, dataToUpdate, { returnDocument: "after" });
+    const updatedTag = await TagModel.findByIdAndUpdate(tagId, dataToUpdate, {
+      returnDocument: "after",
+    });
     if (!updatedTag) {
       return next(errorCreator(`No tag with id=${tagId} exists for the user`, 404));
     }
