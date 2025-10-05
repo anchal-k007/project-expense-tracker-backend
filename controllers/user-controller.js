@@ -22,6 +22,29 @@ exports.getTags = async (req, res, next) => {
   }
 };
 
+exports.getTagDetails = async (req, res, next) => {
+  const userId = req.userId;
+  const { tagId } = req.params;
+  try {
+    const tag = await TagModel.findOne({
+      _id: tagId,
+      user: userId,
+    });
+    if (!tag) {
+      return next(
+        errorCreator(`No tag with id = ${tagId} exists for the user with userId = ${userId}`),
+      );
+    }
+    return res.status(200).json({
+      status: "success",
+      tag,
+    });
+  } catch (err) {
+    console.log("An error occurred while fetching the user tags");
+    throw err;
+  }
+};
+
 exports.postCreateTag = async (req, res, next) => {
   const userId = req.userId;
   const { name: tagName } = req.body;

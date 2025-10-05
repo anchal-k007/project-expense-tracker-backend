@@ -1,6 +1,11 @@
 const express = require("express");
 const { isAuth } = require("./../controllers/auth-controller");
-const { getTags, postCreateTag, putUpdateTag } = require("../controllers/user-controller");
+const {
+  getTags,
+  postCreateTag,
+  putUpdateTag,
+  getTagDetails,
+} = require("../controllers/user-controller");
 const {
   getPaymentMethod,
   postCreatePaymentMethod,
@@ -12,7 +17,7 @@ const router = express.Router();
 
 router.route("/tags").get(isAuth, getTags).post(isAuth, postCreateTag);
 
-router.route("/tags/:tagId").put(isAuth, putUpdateTag);
+router.route("/tags/:tagId").get(isAuth, getTagDetails).put(isAuth, putUpdateTag);
 
 router
   .route("/payment-method")
