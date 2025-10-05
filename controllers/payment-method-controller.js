@@ -51,7 +51,7 @@ exports.postCreatePaymentMethod = async (req, res, next) => {
         userId,
         {
           $push: {
-            paymentMethod: savedPaymentMethod,
+            paymentMethods: savedPaymentMethod,
           },
         },
         { returnDocument: "after" },
