@@ -31,6 +31,32 @@ exports.getPaymentMethod = async (req, res, next) => {
   }
 };
 
+exports.getAllPaymentMethodsForUser = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const user = await UserModel.findById(userId).populate({
+      path: "paymentMethods",
+    });
+
+    console.log({
+      user,
+    });
+
+    if (!user) {
+      return next(errorCreator(`Could not find any user with the id ${userId}`, 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      paymentMethods: user.paymentMethods,
+    });
+  } catch (err) {
+    console.log("Failed to get payment methods associated with the current user. Please try again later");
+    console.log(err);
+    return next(err);
+  }
+};
+
 exports.postCreatePaymentMethod = async (req, res, next) => {
   const userId = req.userId;
   const { name: paymentMethodName, active } = req.body;
