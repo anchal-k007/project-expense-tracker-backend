@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const ModelNames = require("./model-name-constants");
+const { validatePaymentMethodAddedToExpense } = require("../validators/payment-method-on-expense");
 
 const ExpenseSchema = new mongoose.Schema(
   {
@@ -36,6 +37,16 @@ const ExpenseSchema = new mongoose.Schema(
         ref: ModelNames.TAG_MODEL_NAME,
       },
     ],
+    paymentMethod: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: ModelNames.PAYMENT_METHOD_MODEL_NAME,
+      validate: {
+        validator: async function (value) {
+          return await validatePaymentMethodAddedToExpense(value, this.user);
+        },
+        message: "Payment method id = {VALUE} in {PATH} is invalid",
+      },
+    },
   },
   { versionKey: false, timestamps: true },
 );

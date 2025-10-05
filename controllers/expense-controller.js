@@ -2,6 +2,8 @@ const UserModel = require("../models/user-model");
 const ExpenseModel = require("./../models/expense-model");
 const TagModel = require("../models/tag-model");
 const errorCreator = require("../utils/error-creator");
+const PaymentMethodModel = require("../models/payment-method-model");
+const { filterProperties } = require("../utils/filter-properties");
 
 exports.getAllExpenses = async (req, res, next) => {
   try {
@@ -11,14 +13,18 @@ exports.getAllExpenses = async (req, res, next) => {
     if (!date) {
       filteredExpenses = await ExpenseModel.find({ user: userId })
         .populate({ path: "tags", select: { name: 1, active: 1 } })
+        .populate({ path: "paymentMethod", select: { name: 1, active: 1, _id: 1 } })
         .limit(50);
     } else {
       filteredExpenses = await ExpenseModel.find({
         user: userId,
         date: date,
-      }).populate({ path: "tags", select: { name: 1, active: 1 } });
+      })
+        .populate({ path: "tags", select: { name: 1, active: 1 } })
+        .populate({ path: "paymentMethod", select: { name: 1, active: 1, _id: 1 } });
     }
     res.status(200).json({
+      status: "success",
       expenses: filteredExpenses,
     });
   } catch (err) {
@@ -28,7 +34,7 @@ exports.getAllExpenses = async (req, res, next) => {
 };
 
 exports.postAddNewExpense = async (req, res, next) => {
-  const { date, amount, paymentMode, reason, tags } = req.body;
+  const { date, amount, paymentMode, reason, tags, paymentMethodId } = req.body;
   const userId = req.userId;
   const newExpense = new ExpenseModel({
     date: date,
@@ -37,16 +43,25 @@ exports.postAddNewExpense = async (req, res, next) => {
     reason,
     user: userId,
     tags,
+    paymentMethod: paymentMethodId,
   });
   try {
     const createdExpense = await newExpense.save();
+    // Update user with the expense
     const user = await UserModel.findByIdAndUpdate(userId, {
       $push: { expenses: createdExpense },
     });
-    tags.forEach(async (tagId) => {
-      await TagModel.findByIdAndUpdate(tagId, {
-        $push: { expenses: createdExpense._id },
+    // Update tags with the created tag
+    if (tags) {
+      tags.forEach(async (tagId) => {
+        await TagModel.findByIdAndUpdate(tagId, {
+          $push: { expenses: createdExpense._id },
+        });
       });
+    }
+    // Update payment method with the expense
+    await PaymentMethodModel.findByIdAndUpdate(paymentMethodId, {
+      $push: { expenses: createdExpense },
     });
     res.status(201).json({
       status: "success",
@@ -87,6 +102,11 @@ exports.deleteRemoveExpense = async (req, res, next) => {
       });
     });
 
+    // Update payment method
+    await PaymentMethodModel.findByIdAndUpdate(deletedExpense.paymentMethod._id, {
+      $pull: { expenses: deletedExpense._id },
+    });
+
     return res.status(204).json({
       status: "success",
       message: "Deleted the following expense",
@@ -100,18 +120,21 @@ exports.deleteRemoveExpense = async (req, res, next) => {
 
 exports.putUpdateExpense = async (req, res, next) => {
   const userId = req.userId;
-  const validProperties = ["paymentMode", "amount", "date", "reason", "tags"];
+  const validProperties = ["paymentMode", "amount", "date", "reason", "tags", "paymentMethodId"];
   const expenseId = req.params.expenseId;
-  const dataToUpdate = req.body;
   // filter unnecessary fields
-  Object.keys(dataToUpdate).forEach((key) => !validProperties.includes(key) && delete dataToUpdate[key]);
+  const dataToUpdate = filterProperties(req.body, validProperties);
+
+  if (dataToUpdate.paymentMethodId) {
+    dataToUpdate.paymentMethod = paymentMethodId;
+    delete dataToUpdate.paymentMethodId;
+  }
 
   try {
+    const oldExpense = await ExpenseModel.findById(expenseId).select({ tags: 1, paymentMethod: 1, _id: -1 });
     // Find the tags before update
     const oldTagsSet = new Set();
-    (await ExpenseModel.findById(expenseId, { tags: 1, _id: -1 })).tags.forEach((tagId) =>
-      oldTagsSet.add(tagId.toString()),
-    );
+    oldExpense.tags.forEach((tagId) => oldTagsSet.add(tagId.toString()));
 
     // Update the expense
     const updatedExpense = await ExpenseModel.findOneAndUpdate({ _id: expenseId, user: userId }, dataToUpdate, {
@@ -122,6 +145,21 @@ exports.putUpdateExpense = async (req, res, next) => {
     // Check
     if (!updatedExpense) {
       return next(errorCreator(`No expense found with the expenseId = ${expenseId}`, 404));
+    }
+
+    // Update payment method if changed
+    if (
+      updatedExpense.paymentMethod &&
+      updatedExpense.paymentMethod.toString() !== oldExpense.paymentMethod.toString()
+    ) {
+      // Remove expense from the old payment method
+      await PaymentMethodModel.findByIdAndUpdate(oldExpense.paymentMethod, {
+        $pull: { expenses: oldExpense._id },
+      });
+      // Add expense to new payment method
+      await PaymentMethodModel.findByIdAndUpdate(updatedExpense.paymentMethod, {
+        $push: { expenses: oldExpense._id },
+      });
     }
 
     // Update the tags
